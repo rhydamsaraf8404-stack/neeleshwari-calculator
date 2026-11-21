@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="theme-color" content="#161616">
+<title>Neeleshwari Jewellers Estimate</title>
+<style>
+:root{--bg:#111;--card:#1d1d1d;--gold:#d5b56d;--gold2:#f0d795;--muted:#aaa;--line:#51452c;--white:#f7f5ef}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(160deg,#101010,#1b1710);color:var(--white);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;min-height:100vh;padding:20px 14px 36px}
+.wrap{max-width:520px;margin:0 auto}.header{text-align:center;padding:18px 8px 22px}.brand{font-family:Georgia,serif;font-size:clamp(25px,7vw,34px);letter-spacing:1.6px;color:var(--gold2);font-weight:700}.estimate{margin-top:7px;letter-spacing:5px;font-size:14px;color:var(--gold)}.divider{height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:12px 0 20px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}.field{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:15px 13px 13px;min-width:0;box-shadow:0 4px 14px #0002}.label{font-size:12px;letter-spacing:1px;color:var(--gold);font-weight:700;display:block;margin-bottom:10px}.field input{width:100%;border:0;outline:0;background:transparent;color:#fff;font-size:22px;font-weight:600;padding:0;min-width:0}.field input::placeholder{color:#656565}.hint{font-size:11px;color:var(--muted);margin-top:8px}.summary{margin-top:18px;background:#292215;border:1px solid #8b713d;border-radius:17px;padding:17px}.totalLabel{color:#d8c18d;font-size:12px;letter-spacing:1.7px;font-weight:700}.total{font-size:32px;font-weight:800;color:#f2d38d;margin-top:7px;letter-spacing:.3px;word-break:break-word}.details{margin-top:14px;border-top:1px solid #6a5630;padding-top:12px;display:grid;gap:8px}.row{display:flex;justify-content:space-between;gap:12px;color:#d8d0bd;font-size:14px}.row span:last-child{font-variant-numeric:tabular-nums;text-align:right}.actions{display:flex;gap:10px;margin-top:15px}.btn{flex:1;border:1px solid var(--gold);border-radius:12px;padding:13px;font-weight:700;font-size:14px;cursor:pointer}.primary{background:var(--gold);color:#1b160b}.secondary{background:transparent;color:var(--gold2)}.footer{text-align:center;color:#777;font-size:11px;margin-top:19px}
+@media(max-width:360px){body{padding-left:10px;padding-right:10px}.field{padding:12px}.field input{font-size:20px}.grid{gap:10px}}
+</style>
+</head><body><main class="wrap"><header class="header"><div class="brand">NEELESHWARI JEWELLERS</div><div class="estimate">ESTIMATE</div><div class="divider"></div></header>
+<div class="grid">
+<div class="field"><label class="label" for="weight">WEIGHT (GRAMS)</label><input id="weight" type="number" inputmode="decimal" min="0" step="0.001" placeholder="0.000"></div>
+<div class="field"><label class="label" for="rate">GOLD RATE (₹ / 10g)</label><input id="rate" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00"><div class="hint" id="pergram">1 gram rate: ₹0.00</div></div>
+<div class="field"><label class="label" for="making">MAKING CHARGES (%)</label><input id="making" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0"></div>
+<div class="field"><label class="label" for="gst">GST (%)</label><input id="gst" type="number" inputmode="decimal" min="0" step="0.01" value="3"></div>
+</div>
+<section class="summary"><div class="totalLabel">TOTAL ESTIMATE</div><div class="total" id="total">₹ 0.00</div><div class="details">
+<div class="row"><span>Gold value</span><span id="goldvalue">₹ 0.00</span></div><div class="row"><span>Making charges</span><span id="makingvalue">₹ 0.00</span></div><div class="row"><span>GST</span><span id="gstvalue">₹ 0.00</span></div>
+</div></section>
+<div class="actions"><button class="btn primary" id="reset">CLEAR</button><button class="btn secondary" id="share">SHARE ESTIMATE</button></div><div class="footer">Estimate only · Prices can be updated anytime</div></main>
+<script>
+const ids=['weight','rate','making','gst'];const el=Object.fromEntries(ids.map(x=>[x,document.getElementById(x)]));const money=n=>'₹ '+n.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+function calc(){const w=Number(el.weight.value)||0, r=Number(el.rate.value)||0, m=Number(el.making.value)||0,g=Number(el.gst.value)||0;const perGram=r/10,gold=w*perGram,mc=gold*m/100,tax=(gold+mc)*g/100,total=gold+mc+tax;document.getElementById('pergram').textContent='1 gram rate: '+money(perGram);document.getElementById('goldvalue').textContent=money(gold);document.getElementById('makingvalue').textContent=money(mc);document.getElementById('gstvalue').textContent=money(tax);document.getElementById('total').textContent=money(total);return {w,r,m,g,perGram,gold,mc,tax,total};}
+ids.forEach(id=>el[id].addEventListener('input',calc));document.getElementById('reset').addEventListener('click',()=>{ids.forEach(id=>{if(id==='gst')el[id].value='3';else el[id].value=''});calc();});document.getElementById('share').addEventListener('click',async()=>{const x=calc();const msg=`NEELESHWARI JEWELLERS - ESTIMATE\nWeight: ${x.w} g\nRate: ₹${x.r.toLocaleString('en-IN')} / 10g (₹${x.perGram.toFixed(2)} / g)\nMaking Charges: ${x.m}% = ${money(x.mc)}\nGold Value: ${money(x.gold)}\nGST: ${x.g}% = ${money(x.tax)}\nTOTAL: ${money(x.total)}`;if(navigator.share){try{await navigator.share({text:msg})}catch(e){}}else{try{await navigator.clipboard.writeText(msg);alert('Estimate copied. You can paste it into WhatsApp.')}catch(e){prompt('Copy your estimate:',msg)}}});calc();
+</script></body></html>
